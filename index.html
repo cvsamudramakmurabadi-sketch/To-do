@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ExecFlow Pro - Enterprise & Production Suite</title>
+    <title>CV. Samudera Makmur Abadi - Enterprise & Production Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -62,7 +62,7 @@
                 </div>
                 <div>
                     <h1 class="text-lg font-bold text-white flex items-center gap-2">
-                        ExecFlow Pro
+                        CV. Samudera Makmur Abadi
                         <span id="sync-status" class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Realtime Sync Active</span>
                     </h1>
                     <p class="text-xs text-slate-400">Enterprise & Production Operating System</p>
@@ -309,7 +309,7 @@
             </div>
         </section>
 
-        <!-- TO-DO LIST (DIPERBARUI DENGAN TOMBOL EDIT & PERSISTENSI DEADLINE) -->
+        <!-- TO-DO LIST -->
         <section id="tab-todo" class="tab-content hidden space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl">
@@ -451,7 +451,7 @@
         </div>
     </div>
 
-    <!-- MODAL EDIT TO-DO TASK (FITUR BARU) -->
+    <!-- MODAL EDIT TO-DO TASK -->
     <div id="todo-edit-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -731,7 +731,7 @@
             }).join('');
         }
 
-        // TO-DO LOGIC (DENGAN TOMBOL EDIT & KELOLA STATUS CENTANG/DELETE)
+        // TO-DO LOGIC
         function handleAddTask(e) {
             e.preventDefault();
             appData.tasks.push({
@@ -791,7 +791,6 @@
             }
         }
 
-        // PERSISTENSI PENAMPILAN TASK (TETAP MUNCUL MESKI LEWAT DEADLINE)
         function renderTasks() {
             const pendingTasks = appData.tasks.filter(t => t.status !== 'Completed');
 
@@ -944,7 +943,7 @@
 
         function exportData() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
-            const a = document.createElement('a'); a.href = dataStr; a.download = `ExecFlow_Full_Backup.json`; a.click();
+            const a = document.createElement('a'); a.href = dataStr; a.download = `CV_Samudera_Makmur_Abadi_Backup.json`; a.click();
         }
 
         function resetToDefault() {
