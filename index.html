@@ -281,7 +281,7 @@
             </div>
         </section>
 
-        <!-- CALENDAR SECTION (DILENGKAPI DENGAN HARI & POPUP DETAIL TASK) -->
+        <!-- CALENDAR SECTION -->
         <section id="tab-calendar" class="tab-content hidden space-y-6">
             <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex items-center justify-between">
                 <h2 class="text-lg font-bold text-white flex items-center gap-2">
@@ -295,7 +295,6 @@
             </div>
 
             <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 overflow-x-auto">
-                <!-- HEADER NAMA HARI -->
                 <div class="grid grid-cols-7 gap-2 min-w-[650px] mb-3 text-center font-bold text-xs text-slate-400 uppercase tracking-wider">
                     <div class="py-1 bg-slate-950/60 rounded">Senin</div>
                     <div class="py-1 bg-slate-950/60 rounded">Selasa</div>
@@ -306,7 +305,6 @@
                     <div class="py-1 bg-slate-950/60 rounded text-rose-400">Minggu</div>
                 </div>
 
-                <!-- GRID TANGGAL KALENDER -->
                 <div id="calendar-days" class="grid grid-cols-7 gap-2 min-w-[650px]"></div>
             </div>
         </section>
@@ -351,7 +349,7 @@
 
     </main>
 
-    <!-- MODAL KANBAN -->
+    <!-- MODAL TAMBAH KANBAN -->
     <div id="kanban-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl">
             <h3 class="text-base font-bold text-white">Tambah Kartu Kanban Baru</h3>
@@ -398,7 +396,62 @@
         </div>
     </div>
 
-    <!-- MODAL DETAIL TASK UNTUK TANGGAL YNG DI-KLIK -->
+    <!-- MODAL EDIT KANBAN (FITUR BARU) -->
+    <div id="kanban-edit-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fas fa-edit text-purple-400"></i> Edit Kartu Kanban
+                </h3>
+                <button onclick="closeEditKanbanModal()" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <input type="hidden" id="edit-kanban-id">
+
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Judul Tugas / Batch *</label>
+                <input type="text" id="edit-kanban-title" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Kolom Status</label>
+                    <select id="edit-kanban-column" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white font-medium">
+                        <option value="backlog">Backlog / Order</option>
+                        <option value="progress">In Progress</option>
+                        <option value="qc">Quality Control (QC)</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Prioritas</label>
+                    <select id="edit-kanban-priority" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                        <option value="Critical">Critical</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Penanggung Jawab (PIC)</label>
+                <input type="text" id="edit-kanban-pic" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Catatan / Detail Instruksi</label>
+                <textarea id="edit-kanban-desc" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white"></textarea>
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeEditKanbanModal()" class="px-4 py-2 bg-slate-800 text-slate-300 text-xs rounded-lg hover:bg-slate-700">Batal</button>
+                <button onclick="saveEditKanbanCard()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-lg shadow-lg shadow-purple-600/20">Update Kartu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DETAIL TASK UNTUK TANGGAL KALENDER -->
     <div id="calendar-date-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -463,7 +516,7 @@
             if (tabId === 'kanban') renderKanban();
         }
 
-        // KANBAN LOGIC
+        // KANBAN LOGIC (DENGAN TOMBOL EDIT & DELETE)
         function renderKanban() {
             const cols = ['backlog', 'progress', 'qc', 'completed'];
             cols.forEach(col => {
@@ -487,9 +540,14 @@
                         <div id="${c.id}" draggable="true" ondragstart="dragKanban(event)" class="bg-slate-800/90 border border-slate-700 hover:border-indigo-500 p-4 rounded-xl space-y-2.5 cursor-grab active:cursor-grabbing shadow-lg transition-all">
                             <div class="flex items-start justify-between space-x-2">
                                 <h4 class="text-xs font-bold text-white leading-snug">${c.title}</h4>
-                                <button onclick="deleteKanbanCard('${c.id}')" class="text-slate-400 hover:text-rose-400 text-xs">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="openEditKanbanModal('${c.id}')" title="Edit Kartu" class="text-slate-400 hover:text-purple-400 text-xs transition-colors">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteKanbanCard('${c.id}')" title="Hapus Kartu" class="text-slate-400 hover:text-rose-400 text-xs transition-colors">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                             ${c.desc ? `<p class="text-[11px] text-slate-300 line-clamp-3">${c.desc}</p>` : ''}
                             <div class="flex items-center justify-between pt-2 border-t border-slate-700/60 text-[10px]">
@@ -538,6 +596,44 @@
             document.getElementById('kanban-desc-input').value = '';
             closeNewKanbanModal();
             pushToFirebase();
+        }
+
+        // FUNGSI MODAL EDIT KANBAN
+        function openEditKanbanModal(id) {
+            const card = appData.kanbanCards.find(c => c.id === id);
+            if (!card) return;
+
+            document.getElementById('edit-kanban-id').value = card.id;
+            document.getElementById('edit-kanban-title').value = card.title || '';
+            document.getElementById('edit-kanban-column').value = (card.column || 'backlog').toLowerCase();
+            document.getElementById('edit-kanban-priority').value = card.priority || 'Medium';
+            document.getElementById('edit-kanban-pic').value = card.pic || '';
+            document.getElementById('edit-kanban-desc').value = card.desc || '';
+
+            document.getElementById('kanban-edit-modal').classList.remove('hidden');
+        }
+
+        function closeEditKanbanModal() {
+            document.getElementById('kanban-edit-modal').classList.add('hidden');
+        }
+
+        function saveEditKanbanCard() {
+            const id = document.getElementById('edit-kanban-id').value;
+            const card = appData.kanbanCards.find(c => c.id === id);
+            
+            if (card) {
+                const title = document.getElementById('edit-kanban-title').value.trim();
+                if (!title) return;
+
+                card.title = title;
+                card.column = document.getElementById('edit-kanban-column').value;
+                card.priority = document.getElementById('edit-kanban-priority').value;
+                card.pic = document.getElementById('edit-kanban-pic').value.trim() || 'Unassigned';
+                card.desc = document.getElementById('edit-kanban-desc').value.trim();
+
+                closeEditKanbanModal();
+                pushToFirebase();
+            }
         }
 
         function deleteKanbanCard(id) {
@@ -641,26 +737,24 @@
             if (h) { if (!h.checks) h.checks = [false,false,false,false,false,false,false]; h.checks[dayIdx] = !h.checks[dayIdx]; pushToFirebase(); }
         }
 
-        // KALENDER DENGAN HARI & INTERAKTIF CLICK TASK
+        // KALENDER LOGIC
         function renderCalendar() {
             const year = currentCalendarDate.getFullYear();
             const month = currentCalendarDate.getMonth();
             
             document.getElementById('calendar-month-year').innerText = `${monthNamesID[month]} ${year}`;
             
-            const firstDayIndex = new Date(year, month, 1).getDay(); // 0 = Sun, 1 = Mon ...
-            const adjustedFirstDay = firstDayIndex === 0 ? 6 : firstDayIndex - 1; // Align to Monday
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const adjustedFirstDay = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
             const totalDays = new Date(year, month + 1, 0).getDate();
             
             const grid = document.getElementById('calendar-days');
             grid.innerHTML = '';
 
-            // EMPTY PADDING SLOTS FOR FIRST WEEK
             for (let i = 0; i < adjustedFirstDay; i++) {
                 grid.innerHTML += `<div class="min-h-[75px] bg-slate-950/40 border border-slate-900 rounded-lg opacity-30"></div>`;
             }
 
-            // DAYS GRID
             for (let d = 1; d <= totalDays; d++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                 const dayTasks = appData.tasks.filter(t => t.date === dateStr);
@@ -690,7 +784,6 @@
             renderCalendar(); 
         }
 
-        // POPUP MODAL UNTUK TANGGAL YNG DI-KLIK
         function openDateModal(dateStr) {
             const dateObj = new Date(dateStr);
             const formattedDate = dateObj.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
