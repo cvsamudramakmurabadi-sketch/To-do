@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExecFlow Pro - Executive Productivity Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            900: '#14532d',
+                        },
+                        slate: {
+                            850: '#151f32',
+                            900: '#0f172a',
+                            950: '#080d1a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col custom-scrollbar">
+
+    <!-- TOP HEADER -->
+    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-emerald-500 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
+                    <i class="fas fa-chart-line text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400">ExecFlow Pro</h1>
+                    <p class="text-xs text-slate-400">Executive Productivity & Operating System</p>
+                </div>
+            </div>
+
+            <!-- Global Actions -->
+            <div class="flex items-center space-x-3">
+                <button onclick="exportData()" class="px-3 py-1.5 text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-all flex items-center space-x-1.5">
+                    <i class="fas fa-download text-emerald-400"></i>
+                    <span>Export JSON</span>
+                </button>
+                <label class="px-3 py-1.5 text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-all flex items-center space-x-1.5 cursor-pointer">
+                    <i class="fas fa-upload text-indigo-400"></i>
+                    <span>Import</span>
+                    <input type="file" id="importFile" onchange="importData(event)" class="hidden" accept=".json">
+                </label>
+                <button onclick="resetToDefault()" class="px-3 py-1.5 text-xs font-medium text-rose-400 bg-rose-950/30 hover:bg-rose-900/50 border border-rose-800/50 rounded-lg transition-all">
+                    Reset
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- NAVIGATION TABS -->
+    <div class="bg-slate-900 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="flex space-x-2 py-2 overflow-x-auto custom-scrollbar">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex items-center space-x-2 px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+                    <i class="fas fa-columns text-indigo-400"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button onclick="switchTab('calendar')" id="nav-calendar" class="nav-btn flex items-center space-x-2 px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+                    <i class="fas fa-calendar-alt text-amber-400"></i>
+                    <span>Kalender & Tasks</span>
+                </button>
+                <button onclick="switchTab('todo')" id="nav-todo" class="nav-btn flex items-center space-x-2 px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+                    <i class="fas fa-tasks text-emerald-400"></i>
+                    <span>To-Do & Priority</span>
+                </button>
+                <button onclick="switchTab('habit')" id="nav-habit" class="nav-btn flex items-center space-x-2 px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+                    <i class="fas fa-fire text-orange-400"></i>
+                    <span>Habit Tracker</span>
+                </button>
+                <button onclick="switchTab('deepwork')" id="nav-deepwork" class="nav-btn flex items-center space-x-2 px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+                    <i class="fas fa-stopwatch text-cyan-400"></i>
+                    <span>Focus Timer</span>
+                </button>
+                <button onclick="switchTab('wbr')" id="nav-wbr" class="nav-btn flex items-center space-x-2 px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">
+                    <i class="fas fa-file-alt text-purple-400"></i>
+                    <span>Weekly Review</span>
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- SECTION: DASHBOARD -->
+        <section id="tab-dashboard" class="tab-content space-y-6">
+            <!-- KPI SUMMARY CARDS -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400 font-medium">Task Completion Rate</p>
+                        <h3 id="kpi-task-rate" class="text-2xl font-bold text-white mt-1">0%</h3>
+                        <p id="kpi-task-sub" class="text-xs text-slate-500 mt-0.5">0 / 0 Tugas Selesai</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400 font-medium">Weekly Habit Score</p>
+                        <h3 id="kpi-habit-rate" class="text-2xl font-bold text-white mt-1">0%</h3>
+                        <p id="kpi-habit-sub" class="text-xs text-slate-500 mt-0.5">Konsistensi Rutinitas</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 flex items-center justify-center text-xl">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400 font-medium">Deep Work Hours</p>
+                        <h3 id="kpi-deepwork-hours" class="text-2xl font-bold text-white mt-1">0.0h</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Total Sesi Fokus</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl">
+                        <i class="fas fa-stopwatch"></i>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-400 font-medium">Critical Issues / Must Do</p>
+                        <h3 id="kpi-critical-count" class="text-2xl font-bold text-rose-400 mt-1">0</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Tugas Prioritas Utama</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center text-xl">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHARTS GRID -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-slate-900 border border-slate-800 p-5 rounded-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-semibold text-white">Trend Produktivitas Mingguan</h3>
+                        <span class="text-xs text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full">Real-time Metrics</span>
+                    </div>
+                    <div class="h-64">
+                        <canvas id="productivityChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-semibold text-white">Distribusi Prioritas Tugas</h3>
+                        <span class="text-xs text-slate-400">Total Tasks</span>
+                    </div>
+                    <div class="h-52 relative flex items-center justify-center">
+                        <canvas id="priorityChart"></canvas>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-800 text-xs text-slate-400 flex justify-between">
+                        <span>Penyelesaian Cepat</span>
+                        <span class="font-medium text-emerald-400">Eisenhower Priority</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: CALENDAR PAGE -->
+        <section id="tab-calendar" class="tab-content hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fas fa-calendar-alt text-amber-400"></i> Kalender Operating System
+                    </h2>
+                    <p class="text-xs text-slate-400">Klik pada tanggal mana saja untuk melihat atau menambahkan To-Do List spesifik.</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="changeMonth(-1)" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-sm">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span id="calendar-month-year" class="text-sm font-bold text-white min-w-[140px] text-center">Desember 2026</span>
+                    <button onclick="changeMonth(1)" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-sm">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button onclick="goToToday()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold">
+                        Today
+                    </button>
+                </div>
+            </div>
+
+            <!-- CALENDAR GRID -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 overflow-x-auto">
+                <div class="min-w-[700px]">
+                    <!-- DAYS OF WEEK HEADER -->
+                    <div class="grid grid-cols-7 text-center font-semibold text-xs text-slate-400 py-2 border-b border-slate-800">
+                        <span class="text-rose-400">Minggu</span>
+                        <span>Senin</span>
+                        <span>Selasa</span>
+                        <span>Rabu</span>
+                        <span>Kamis</span>
+                        <span>Jumat</span>
+                        <span class="text-indigo-400">Sabtu</span>
+                    </div>
+
+                    <!-- DAYS GRID -->
+                    <div id="calendar-days" class="grid grid-cols-7 gap-1 mt-2">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: TO-DO LIST & EISENHOWER MATRIX -->
+        <section id="tab-todo" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white">To-Do List & Task Management</h2>
+                    <p class="text-xs text-slate-400">Kelola prioritas harian menggunakan Eisenhower Matrix & Delegation System.</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="toggleView('list')" id="view-btn-list" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-600 text-white">
+                        <i class="fas fa-list mr-1"></i> List View
+                    </button>
+                    <button onclick="toggleView('matrix')" id="view-btn-matrix" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700">
+                        <i class="fas fa-th-large mr-1"></i> Eisenhower Matrix
+                    </button>
+                </div>
+            </div>
+
+            <!-- CONTROLS & ADD TASK FORM -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- FORM -->
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+                    <h3 class="text-sm font-semibold text-white mb-4 flex items-center space-x-2">
+                        <i class="fas fa-plus-circle text-indigo-400"></i>
+                        <span>Tambah Tugas Baru</span>
+                    </h3>
+                    <form id="todo-form" onsubmit="handleAddTask(event)" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Judul Tugas *</label>
+                            <input type="text" id="task-title" required placeholder="Misal: Review Laporan Produksi MAXIMA" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Prioritas</label>
+                                <select id="task-priority" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                                    <option value="Critical">Critical (Must Do)</option>
+                                    <option value="Important" selected>Important (Routine)</option>
+                                    <option value="Delegated">Delegated</option>
+                                    <option value="Low">Low Priority</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Kategori</label>
+                                <select id="task-category" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                                    <option value="Operations">Operations</option>
+                                    <option value="Finance">Finance</option>
+                                    <option value="Strategy">Strategy</option>
+                                    <option value="Marketing">Marketing</option>
+                                    <option value="HR/Legal">HR / Legal</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Delegasi Ke (Opsional)</label>
+                                <input type="text" id="task-delegate" placeholder="Nama Staf / Tim" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1">Tenggat Waktu</label>
+                                <input type="date" id="task-date" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Catatan / Detail Arahan</label>
+                            <textarea id="task-notes" rows="2" placeholder="Detail instruksi atau file pendukung..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-lg text-xs transition-colors shadow-lg shadow-indigo-600/20">
+                            + Tambah Tugas Ke Daftar
+                        </button>
+                    </form>
+                </div>
+
+                <!-- LIST / MATRIX DISPLAY AREA -->
+                <div class="lg:col-span-2 space-y-4">
+                    <!-- FILTER BAR -->
+                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between gap-3 text-xs">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-slate-400">Filter:</span>
+                            <select id="filter-priority" onchange="renderTasks()" class="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-slate-200">
+                                <option value="All">Semua Prioritas</option>
+                                <option value="Critical">Critical</option>
+                                <option value="Important">Important</option>
+                                <option value="Delegated">Delegated</option>
+                                <option value="Low">Low</option>
+                            </select>
+                            <select id="filter-status" onchange="renderTasks()" class="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-slate-200">
+                                <option value="All">Semua Status</option>
+                                <option value="Pending">Belum Selesai</option>
+                                <option value="Completed">Selesai</option>
+                            </select>
+                        </div>
+                        <span id="task-count-badge" class="text-slate-400 bg-slate-800 px-2 py-1 rounded">0 Tasks</span>
+                    </div>
+
+                    <!-- LIST VIEW CONTENT -->
+                    <div id="todo-list-view" class="space-y-2 max-h-[500px] overflow-y-auto custom-scrollbar pr-1">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- EISENHOWER MATRIX VIEW -->
+                    <div id="todo-matrix-view" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Q1: Urgent & Important -->
+                        <div class="bg-slate-900 border border-rose-900/50 p-4 rounded-xl">
+                            <h4 class="text-xs font-bold text-rose-400 uppercase tracking-wider mb-3 flex items-center justify-between">
+                                <span>Q1: Critical (Do First)</span>
+                                <i class="fas fa-fire"></i>
+                            </h4>
+                            <div id="matrix-q1" class="space-y-2 min-h-[120px]"></div>
+                        </div>
+
+                        <!-- Q2: Important Not Urgent -->
+                        <div class="bg-slate-900 border border-indigo-900/50 p-4 rounded-xl">
+                            <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-3 flex items-center justify-between">
+                                <span>Q2: Important (Schedule)</span>
+                                <i class="fas fa-calendar"></i>
+                            </h4>
+                            <div id="matrix-q2" class="space-y-2 min-h-[120px]"></div>
+                        </div>
+
+                        <!-- Q3: Urgent Not Important -->
+                        <div class="bg-slate-900 border border-amber-900/50 p-4 rounded-xl">
+                            <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-3 flex items-center justify-between">
+                                <span>Q3: Delegated (Delegate)</span>
+                                <i class="fas fa-user-check"></i>
+                            </h4>
+                            <div id="matrix-q3" class="space-y-2 min-h-[120px]"></div>
+                        </div>
+
+                        <!-- Q4: Neither -->
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center justify-between">
+                                <span>Q4: Low Priority (Eliminate)</span>
+                                <i class="fas fa-trash-alt"></i>
+                            </h4>
+                            <div id="matrix-q4" class="space-y-2 min-h-[120px]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: HABIT TRACKER -->
+        <section id="tab-habit" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white">Weekly Business & Personal Habit Matrix</h2>
+                    <p class="text-xs text-slate-400">Pertahankan konsistensi rutinitas profesional dan kesehatan eksekutif.</p>
+                </div>
+                <button onclick="openAddHabitModal()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center space-x-1.5 self-start">
+                    <i class="fas fa-plus"></i>
+                    <span>+ Tambah Habit</span>
+                </button>
+            </div>
+
+            <!-- HABIT TABLE -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-300">
+                        <thead class="bg-slate-950 text-slate-400 font-semibold border-b border-slate-800">
+                            <tr>
+                                <th class="p-3.5 min-w-[200px]">Kebiasaan & Rutinitas</th>
+                                <th class="p-3.5 text-center">Target</th>
+                                <th class="p-3.5 text-center">Sen</th>
+                                <th class="p-3.5 text-center">Sel</th>
+                                <th class="p-3.5 text-center">Rab</th>
+                                <th class="p-3.5 text-center">Kam</th>
+                                <th class="p-3.5 text-center">Jum</th>
+                                <th class="p-3.5 text-center">Sab</th>
+                                <th class="p-3.5 text-center text-rose-400">Min</th>
+                                <th class="p-3.5 text-center">Progress</th>
+                                <th class="p-3.5 text-center">Streak</th>
+                                <th class="p-3.5 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="habit-table-body" class="divide-y divide-slate-800/60">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: FOCUS TIMER -->
+        <section id="tab-deepwork" class="tab-content hidden space-y-6">
+            <div class="max-w-2xl mx-auto bg-slate-900 border border-slate-800 p-8 rounded-2xl text-center space-y-6 shadow-2xl">
+                <div>
+                    <span class="text-xs uppercase font-bold tracking-widest text-cyan-400 bg-cyan-950/50 border border-cyan-800/50 px-3 py-1 rounded-full">
+                        Deep Work Sprint Timer
+                    </span>
+                    <h2 class="text-2xl font-extrabold text-white mt-3">Blok Fokus Kerja Tanpa Distraksi</h2>
+                    <p class="text-xs text-slate-400 mt-1">Gunakan teknik time-blocking untuk eksekusi tugas-tugas strategis.</p>
+                </div>
+
+                <!-- PRESET BUTTONS -->
+                <div class="flex justify-center space-x-3">
+                    <button onclick="setTimerDuration(25)" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 border border-slate-700">25m Sprint</button>
+                    <button onclick="setTimerDuration(50)" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 border border-slate-700">50m Deep Session</button>
+                    <button onclick="setTimerDuration(90)" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 border border-slate-700">90m Strategy Block</button>
+                </div>
+
+                <!-- TIMER DISPLAY -->
+                <div class="py-6">
+                    <div id="timer-display" class="text-6xl font-mono font-bold tracking-tight text-cyan-400 bg-slate-950 border border-slate-800 py-8 rounded-2xl shadow-inner">
+                        25:00
+                    </div>
+                </div>
+
+                <!-- CONTROLS -->
+                <div class="flex justify-center items-center space-x-4">
+                    <button onclick="toggleTimer()" id="timer-start-btn" class="px-8 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-cyan-600/30 flex items-center space-x-2">
+                        <i class="fas fa-play"></i>
+                        <span>Mulai Sprint</span>
+                    </button>
+                    <button onclick="resetTimer()" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm rounded-xl border border-slate-700">
+                        Reset
+                    </button>
+                </div>
+
+                <!-- TODAY'S LOG -->
+                <div class="pt-6 border-t border-slate-800 text-left">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Log Sesi Deep Work Hari Ini</h4>
+                    <div id="deepwork-log" class="space-y-1.5 text-xs text-slate-300">
+                        <p class="text-slate-500 italic">Belum ada sesi tercatat hari ini.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: WEEKLY BUSINESS REVIEW (WBR) -->
+        <section id="tab-wbr" class="tab-content hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Weekly Business Review (WBR) & Reflection</h2>
+                        <p class="text-xs text-slate-400">Evaluasi pencapaian, hambatan, dan prioritas strategis mingguan.</p>
+                    </div>
+                    <button onclick="saveWBR()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-purple-600/20">
+                        Simpan Review Mingguan
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">
+                            1. Pencapaian Utama Mingguan (Wins)
+                        </label>
+                        <textarea id="wbr-wins" rows="5" placeholder="• Berhasil menyelesaikan laporan ketersediaan stok&#10;• Menyelesaikan analisis kompetitor" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white focus:outline-none focus:border-purple-500 custom-scrollbar"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-rose-400 uppercase tracking-wider mb-2">
+                            2. Kendala & Bottleneck Operasional
+                        </label>
+                        <textarea id="wbr-obstacles" rows="5" placeholder="• Keterlambatan pengiriman bahan baku&#10;• Distraksi rapat berlebihan pada pertengahan minggu" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white focus:outline-none focus:border-purple-500 custom-scrollbar"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-indigo-400 uppercase tracking-wider mb-2">
+                            3. Refleksi Produktivitas & Manajemen Waktu
+                        </label>
+                        <textarea id="wbr-learnings" rows="5" placeholder="• Perlu membatasi waktu cek email hanya 2x sehari&#10;• Rutinitas Deep Work pagi hari terbukti sangat efektif" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white focus:outline-none focus:border-purple-500 custom-scrollbar"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">
+                            4. Top 3 Fokus Strategis Minggu Depan
+                        </label>
+                        <textarea id="wbr-next" rows="5" placeholder="1. Finalisasi anggaran ekspansi&#10;2. Rekrutmen kandidat Sales Executive&#10;3. Audit ulang efisiensi produksi" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white focus:outline-none focus:border-purple-500 custom-scrollbar"></textarea>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- CALENDAR DAY DETAIL MODAL -->
+    <div id="calendar-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-6 space-y-4 shadow-2xl relative">
+            <button onclick="closeCalendarModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div>
+                <span class="text-xs font-semibold text-amber-400 uppercase tracking-wider">Detail Kalender Harian</span>
+                <h3 id="modal-date-title" class="text-lg font-bold text-white mt-1">Rabu, 30 Desember 2026</h3>
+            </div>
+
+            <!-- ADD QUICK TASK IN MODAL -->
+            <div class="border-t border-slate-800 pt-3">
+                <label class="block text-xs font-medium text-slate-400 mb-1">+ Tambahkan To-Do pada Tanggal Ini</label>
+                <div class="flex space-x-2">
+                    <input type="text" id="modal-task-title" placeholder="Nama tugas..." class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <select id="modal-task-priority" class="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-white">
+                        <option value="Critical">Critical</option>
+                        <option value="Important" selected>Important</option>
+                        <option value="Delegated">Delegated</option>
+                        <option value="Low">Low</option>
+                    </select>
+                    <button onclick="addTaskFromModal()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold">
+                        Tambah
+                    </button>
+                </div>
+            </div>
+
+            <!-- TASKS LIST FOR THIS DATE -->
+            <div class="space-y-2">
+                <h4 class="text-xs font-semibold text-slate-400">Daftar Tugas Tanggal Ini:</h4>
+                <div id="modal-tasks-container" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-1">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HABIT MODAL -->
+    <div id="habit-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl">
+            <h3 class="text-base font-bold text-white">Tambah Habit Baru</h3>
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Nama Kebiasaan / Rutinitas</label>
+                <input type="text" id="habit-name-input" placeholder="Misal: Olahraga Self-Defense / Running 30m" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Target Hari Per Minggu</label>
+                <select id="habit-target-input" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                    <option value="5">5 Hari (Hari Kerja)</option>
+                    <option value="7">7 Hari (Setiap Hari)</option>
+                    <option value="3">3 Hari (Kombinasi)</option>
+                </select>
+            </div>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeHabitModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg">Batal</button>
+                <button onclick="handleAddHabit()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- INITIAL STATE & DEFAULT DATA ---
+        const defaultState = {
+            tasks: [
+                { id: 't1', title: 'Review stok bahan baku & pesanan MAXIMA', priority: 'Critical', category: 'Operations', delegate: 'Tim Ops', date: '2026-09-29', status: 'Pending', notes: 'Pastikan kesiapan pengiriman' },
+                { id: 't2', title: 'Analisis fundamental sekuritas & valas', priority: 'Important', category: 'Finance', delegate: '', date: '2026-09-30', status: 'Pending', notes: 'Materi riset sertifikasi' },
+                { id: 't3', title: 'Follow-up lisensi & regulasi usaha', priority: 'Delegated', category: 'HR/Legal', delegate: 'Legal Officer', date: '2026-10-02', status: 'Pending', notes: 'Minta update dokumen' }
+            ],
+            habits: [
+                { id: 'h1', name: 'Review prioritas & calendar block pagi', target: 5, checks: [true, true, true, true, false, false, false], streak: 4 },
+                { id: 'h2', name: 'Deep Work Sprint (Min. 50 Menit)', target: 5, checks: [true, true, true, false, false, false, false], streak: 3 },
+                { id: 'h3', name: 'Olahraga / Muay Thai / Fitness', target: 3, checks: [true, false, true, false, false, false, false], streak: 2 }
+            ],
+            deepworkLogs: [
+                { date: '2026-09-29', minutes: 50, label: 'Penyusunan Rencana Operasional' }
+            ],
+            wbr: {
+                wins: '• Penyelesaian target operasional pabrik tepat waktu\n• Latihan rutin konsisten minggu ini',
+                obstacles: '• Penundaan konfirmasi supplier bahan baku',
+                learnings: '• Time blocking pagi hari menjaga produktivitas tinggi',
+                next: '1. Audit ulang arus kas harian\n2. Selesaikan materi pembelajaran keuangan'
+            }
+        };
+
+        let appData = JSON.parse(localStorage.getItem('execflow_data')) || defaultState;
+        let selectedCalendarDateStr = '';
+        let currentCalendarDate = new Date();
+
+        function saveData() {
+            localStorage.setItem('execflow_data', JSON.stringify(appData));
+            renderAll();
+        }
+
+        function resetToDefault() {
+            if (confirm("Apakah Anda yakin ingin mereset seluruh data ke awal?")) {
+                appData = JSON.parse(JSON.stringify(defaultState));
+                saveData();
+            }
+        }
+
+        // --- NAVIGATION & TABS ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white');
+                btn.classList.add('text-slate-300', 'hover:bg-slate-800');
+            });
+
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            if (targetTab) targetTab.classList.remove('hidden');
+
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-indigo-600', 'text-white');
+                activeBtn.classList.remove('text-slate-300', 'hover:bg-slate-800');
+            }
+
+            if (tabId === 'dashboard') updateDashboardCharts();
+            if (tabId === 'calendar') renderCalendar();
+        }
+
+        // --- CALENDAR LOGIC ---
+        function renderCalendar() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+
+            const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year}`;
+
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const totalDays = new Date(year, month + 1, 0).getDate();
+            const prevLastDay = new Date(year, month, 0).getDate();
+
+            const calendarGrid = document.getElementById('calendar-days');
+            calendarGrid.innerHTML = '';
+
+            // Previous Month's Days
+            for (let i = firstDayIndex; i > 0; i--) {
+                const dayNum = prevLastDay - i + 1;
+                calendarGrid.innerHTML += `
+                    <div class="bg-slate-950/40 text-slate-700 min-h-[90px] p-2 border border-slate-800/40 rounded-lg opacity-40">
+                        <span class="text-xs font-semibold">${dayNum}</span>
+                    </div>
+                `;
+            }
+
+            const today = new Date();
+
+            // Current Month's Days
+            for (let day = 1; day <= totalDays; day++) {
+                const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+                
+                // Tasks on this day
+                const dayTasks = appData.tasks.filter(t => t.date === dateString);
+                
+                let taskBadges = '';
+                dayTasks.slice(0, 2).forEach(t => {
+                    const statusClass = t.status === 'Completed' ? 'line-through text-slate-500 bg-slate-800' : 'bg-indigo-950/80 text-indigo-300 border border-indigo-800/50';
+                    taskBadges += `<div class="text-[10px] truncate px-1.5 py-0.5 rounded ${statusClass} mt-1">${t.title}</div>`;
+                });
+
+                if (dayTasks.length > 2) {
+                    taskBadges += `<div class="text-[9px] text-amber-400 font-semibold mt-0.5">+${dayTasks.length - 2} tugas lagi</div>`;
+                }
+
+                calendarGrid.innerHTML += `
+                    <div onclick="openCalendarModal('${dateString}')" 
+                        class="min-h-[90px] p-2 border ${isToday ? 'border-amber-500 bg-amber-500/10' : 'border-slate-800 bg-slate-900/80 hover:bg-slate-800'} rounded-lg transition-all cursor-pointer flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold ${isToday ? 'text-amber-400' : 'text-slate-200'}">${day}</span>
+                                ${dayTasks.length > 0 ? `<span class="w-2 h-2 rounded-full bg-indigo-500"></span>` : ''}
+                            </div>
+                            ${taskBadges}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function changeMonth(delta) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function goToToday() {
+            currentCalendarDate = new Date();
+            renderCalendar();
+        }
+
+        function openCalendarModal(dateStr) {
+            selectedCalendarDateStr = dateStr;
+            const [y, m, d] = dateStr.split('-');
+            document.getElementById('modal-date-title').innerText = `Tanggal: ${d}/${m}/${y}`;
+            renderModalTasks();
+            document.getElementById('calendar-modal').classList.remove('hidden');
+        }
+
+        function closeCalendarModal() {
+            document.getElementById('calendar-modal').classList.add('hidden');
+        }
+
+        function renderModalTasks() {
+            const container = document.getElementById('modal-tasks-container');
+            const dayTasks = appData.tasks.filter(t => t.date === selectedCalendarDateStr);
+
+            if (dayTasks.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 italic py-2">Belum ada tugas pada tanggal ini.</p>`;
+                return;
+            }
+
+            container.innerHTML = dayTasks.map(t => `
+                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" ${t.status === 'Completed' ? 'checked' : ''} onchange="toggleTaskStatus('${t.id}')" class="rounded border-slate-700 bg-slate-900 text-indigo-600">
+                        <span class="text-xs ${t.status === 'Completed' ? 'line-through text-slate-500' : 'text-slate-200'} font-medium">${t.title}</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400">${t.priority}</span>
+                        <button onclick="deleteTask('${t.id}')" class="text-slate-500 hover:text-rose-400 text-xs">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addTaskFromModal() {
+            const titleInput = document.getElementById('modal-task-title');
+            const priorityInput = document.getElementById('modal-task-priority');
+
+            if (!titleInput.value.trim()) return;
+
+            const newTask = {
+                id: 't_' + Date.now(),
+                title: titleInput.value.trim(),
+                priority: priorityInput.value,
+                category: 'Operations',
+                delegate: '',
+                date: selectedCalendarDateStr,
+                status: 'Pending',
+                notes: 'Ditambahkan via Kalender'
+            };
+
+            appData.tasks.push(newTask);
+            titleInput.value = '';
+            saveData();
+            renderModalTasks();
+            renderCalendar();
+        }
+
+        // --- TO-DO LIST MANAGEMENT ---
+        function handleAddTask(e) {
+            e.preventDefault();
+            const newTask = {
+                id: 't_' + Date.now(),
+                title: document.getElementById('task-title').value,
+                priority: document.getElementById('task-priority').value,
+                category: document.getElementById('task-category').value,
+                delegate: document.getElementById('task-delegate').value,
+                date: document.getElementById('task-date').value || new Date().toISOString().split('T')[0],
+                status: 'Pending',
+                notes: document.getElementById('task-notes').value
+            };
+
+            appData.tasks.push(newTask);
+            document.getElementById('todo-form').reset();
+            saveData();
+        }
+
+        function toggleTaskStatus(id) {
+            const task = appData.tasks.find(t => t.id === id);
+            if (task) {
+                task.status = task.status === 'Completed' ? 'Pending' : 'Completed';
+                saveData();
+            }
+        }
+
+        function deleteTask(id) {
+            appData.tasks = appData.tasks.filter(t => t.id !== id);
+            saveData();
+            if (!document.getElementById('calendar-modal').classList.contains('hidden')) {
+                renderModalTasks();
+            }
+        }
+
+        function toggleView(view) {
+            const listEl = document.getElementById('todo-list-view');
+            const matrixEl = document.getElementById('todo-matrix-view');
+            const btnList = document.getElementById('view-btn-list');
+            const btnMatrix = document.getElementById('view-btn-matrix');
+
+            if (view === 'list') {
+                listEl.classList.remove('hidden');
+                matrixEl.classList.add('hidden');
+                btnList.className = 'px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-600 text-white';
+                btnMatrix.className = 'px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700';
+            } else {
+                listEl.classList.add('hidden');
+                matrixEl.classList.remove('hidden');
+                btnMatrix.className = 'px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-600 text-white';
+                btnList.className = 'px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700';
+            }
+        }
+
+        function renderTasks() {
+            const pFilter = document.getElementById('filter-priority').value;
+            const sFilter = document.getElementById('filter-status').value;
+
+            const filtered = appData.tasks.filter(t => {
+                const matchP = pFilter === 'All' || t.priority === pFilter;
+                const matchS = sFilter === 'All' || (sFilter === 'Completed' ? t.status === 'Completed' : t.status !== 'Completed');
+                return matchP && matchS;
+            });
+
+            document.getElementById('task-count-badge').innerText = `${filtered.length} Tasks`;
+
+            // List View Render
+            const listContainer = document.getElementById('todo-list-view');
+            listContainer.innerHTML = filtered.map(t => {
+                const prioColor = t.priority === 'Critical' ? 'text-rose-400 bg-rose-950/50 border-rose-800/50' :
+                                 t.priority === 'Important' ? 'text-indigo-400 bg-indigo-950/50 border-indigo-800/50' :
+                                 t.priority === 'Delegated' ? 'text-amber-400 bg-amber-950/50 border-amber-800/50' :
+                                 'text-slate-400 bg-slate-800 border-slate-700';
+
+                return `
+                    <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl flex items-start justify-between space-x-3">
+                        <div class="flex items-start space-x-3">
+                            <input type="checkbox" ${t.status === 'Completed' ? 'checked' : ''} onchange="toggleTaskStatus('${t.id}')" class="mt-1 rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-indigo-500">
+                            <div>
+                                <h4 class="text-xs font-bold ${t.status === 'Completed' ? 'line-through text-slate-500' : 'text-white'}">${t.title}</h4>
+                                <div class="flex items-center space-x-2 mt-1.5 text-[11px] text-slate-400">
+                                    <span class="px-2 py-0.5 rounded border ${prioColor} font-semibold">${t.priority}</span>
+                                    <span><i class="fas fa-folder text-slate-500"></i> ${t.category}</span>
+                                    ${t.delegate ? `<span><i class="fas fa-user text-amber-400"></i> ${t.delegate}</span>` : ''}
+                                    ${t.date ? `<span><i class="fas fa-calendar text-slate-500"></i> ${t.date}</span>` : ''}
+                                </div>
+                                ${t.notes ? `<p class="text-[11px] text-slate-400 mt-1 italic">${t.notes}</p>` : ''}
+                            </div>
+                        </div>
+                        <button onclick="deleteTask('${t.id}')" class="text-slate-500 hover:text-rose-400 text-xs">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            // Matrix View Render
+            const renderMatrixCard = (t) => `
+                <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-lg text-xs">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-slate-200">${t.title}</span>
+                        <input type="checkbox" ${t.status === 'Completed' ? 'checked' : ''} onchange="toggleTaskStatus('${t.id}')" class="rounded border-slate-700 bg-slate-900 text-indigo-600">
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1">${t.category} ${t.delegate ? '| ' + t.delegate : ''}</p>
+                </div>
+            `;
+
+            document.getElementById('matrix-q1').innerHTML = appData.tasks.filter(t => t.priority === 'Critical').map(renderMatrixCard).join('');
+            document.getElementById('matrix-q2').innerHTML = appData.tasks.filter(t => t.priority === 'Important').map(renderMatrixCard).join('');
+            document.getElementById('matrix-q3').innerHTML = appData.tasks.filter(t => t.priority === 'Delegated').map(renderMatrixCard).join('');
+            document.getElementById('matrix-q4').innerHTML = appData.tasks.filter(t => t.priority === 'Low').map(renderMatrixCard).join('');
+        }
+
+        // --- HABIT TRACKER ---
+        function renderHabits() {
+            const body = document.getElementById('habit-table-body');
+            body.innerHTML = appData.habits.map(h => {
+                const totalChecked = h.checks.filter(Boolean).length;
+                const pct = Math.round((totalChecked / h.target) * 100);
+
+                const checkCols = h.checks.map((chk, i) => `
+                    <td class="p-3 text-center">
+                        <input type="checkbox" ${chk ? 'checked' : ''} onchange="toggleHabit('${h.id}', ${i})" class="rounded border-slate-700 bg-slate-950 text-emerald-500 focus:ring-emerald-500">
+                    </td>
+                `).join('');
+
+                return `
+                    <tr class="hover:bg-slate-850/50 transition-colors">
+                        <td class="p-3.5 font-semibold text-white">${h.name}</td>
+                        <td class="p-3.5 text-center font-mono text-slate-400">${h.target}d</td>
+                        ${checkCols}
+                        <td class="p-3.5 text-center font-bold text-emerald-400">${pct}%</td>
+                        <td class="p-3.5 text-center font-bold text-orange-400"><i class="fas fa-fire mr-1"></i>${h.streak}</td>
+                        <td class="p-3.5 text-center">
+                            <button onclick="deleteHabit('${h.id}')" class="text-slate-500 hover:text-rose-400">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function toggleHabit(id, dayIndex) {
+            const habit = appData.habits.find(h => h.id === id);
+            if (habit) {
+                habit.checks[dayIndex] = !habit.checks[dayIndex];
+                saveData();
+            }
+        }
+
+        function openAddHabitModal() { document.getElementById('habit-modal').classList.remove('hidden'); }
+        function closeHabitModal() { document.getElementById('habit-modal').classList.add('hidden'); }
+
+        function handleAddHabit() {
+            const name = document.getElementById('habit-name-input').value;
+            const target = parseInt(document.getElementById('habit-target-input').value);
+            if (!name) return;
+
+            appData.habits.push({
+                id: 'h_' + Date.now(),
+                name,
+                target,
+                checks: [false, false, false, false, false, false, false],
+                streak: 0
+            });
+
+            closeHabitModal();
+            saveData();
+        }
+
+        function deleteHabit(id) {
+            appData.habits = appData.habits.filter(h => h.id !== id);
+            saveData();
+        }
+
+        // --- TIMER FOCUS LOGIC ---
+        let timerInterval = null;
+        let timerSeconds = 25 * 60;
+        let isTimerRunning = false;
+
+        function setTimerDuration(mins) {
+            if (isTimerRunning) resetTimer();
+            timerSeconds = mins * 60;
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+            const s = String(timerSeconds % 60).padStart(2, '0');
+            document.getElementById('timer-display').innerText = `${m}:${s}`;
+        }
+
+        function toggleTimer() {
+            const btn = document.getElementById('timer-start-btn');
+            if (!isTimerRunning) {
+                isTimerRunning = true;
+                btn.innerHTML = `<i class="fas fa-pause"></i><span>Jeda Sprint</span>`;
+                timerInterval = setInterval(() => {
+                    if (timerSeconds > 0) {
+                        timerSeconds--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(timerInterval);
+                        isTimerRunning = false;
+                        alert("Sesi Deep Work Selesai! Pertahankan ritme kerja.");
+                        appData.deepworkLogs.push({
+                            date: new Date().toISOString().split('T')[0],
+                            minutes: 25,
+                            label: 'Focus Session Completed'
+                        });
+                        saveData();
+                    }
+                }, 1000);
+            } else {
+                clearInterval(timerInterval);
+                isTimerRunning = false;
+                btn.innerHTML = `<i class="fas fa-play"></i><span>Lanjutkan</span>`;
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            timerSeconds = 25 * 60;
+            updateTimerDisplay();
+            document.getElementById('timer-start-btn').innerHTML = `<i class="fas fa-play"></i><span>Mulai Sprint</span>`;
+        }
+
+        function renderDeepWorkLogs() {
+            const container = document.getElementById('deepwork-log');
+            if (appData.deepworkLogs.length === 0) {
+                container.innerHTML = `<p class="text-slate-500 italic">Belum ada sesi tercatat.</p>`;
+                return;
+            }
+            container.innerHTML = appData.deepworkLogs.slice(-3).map(l => `
+                <div class="flex items-center justify-between bg-slate-950 p-2 rounded border border-slate-800">
+                    <span>${l.label} (${l.minutes} Menit)</span>
+                    <span class="text-slate-500 font-mono">${l.date}</span>
+                </div>
+            `).join('');
+        }
+
+        // --- WEEKLY REVIEW ---
+        function loadWBR() {
+            document.getElementById('wbr-wins').value = appData.wbr.wins || '';
+            document.getElementById('wbr-obstacles').value = appData.wbr.obstacles || '';
+            document.getElementById('wbr-learnings').value = appData.wbr.learnings || '';
+            document.getElementById('wbr-next').value = appData.wbr.next || '';
+        }
+
+        function saveWBR() {
+            appData.wbr = {
+                wins: document.getElementById('wbr-wins').value,
+                obstacles: document.getElementById('wbr-obstacles').value,
+                learnings: document.getElementById('wbr-learnings').value,
+                next: document.getElementById('wbr-next').value
+            };
+            saveData();
+            alert("Weekly Business Review berhasil disimpan!");
+        }
+
+        // --- KPI & DASHBOARD CHARTS ---
+        let prodChart = null;
+        let prioChart = null;
+
+        function updateKPIs() {
+            const completed = appData.tasks.filter(t => t.status === 'Completed').length;
+            const total = appData.tasks.length;
+            const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            document.getElementById('kpi-task-rate').innerText = `${rate}%`;
+            document.getElementById('kpi-task-sub').innerText = `${completed} / ${total} Tugas Selesai`;
+
+            // Habits Score
+            let totalChecks = 0;
+            let totalTargets = 0;
+            appData.habits.forEach(h => {
+                totalChecks += h.checks.filter(Boolean).length;
+                totalTargets += h.target;
+            });
+            const habitRate = totalTargets > 0 ? Math.round((totalChecks / totalTargets) * 100) : 0;
+            document.getElementById('kpi-habit-rate').innerText = `${habitRate}%`;
+
+            // Deep work
+            const totalMins = appData.deepworkLogs.reduce((acc, l) => acc + l.minutes, 0);
+            document.getElementById('kpi-deepwork-hours').innerText = `${(totalMins / 60).toFixed(1)}h`;
+
+            // Critical
+            const criticalCount = appData.tasks.filter(t => t.priority === 'Critical' && t.status !== 'Completed').length;
+            document.getElementById('kpi-critical-count').innerText = criticalCount;
+        }
+
+        function updateDashboardCharts() {
+            // Trend Chart
+            const ctx1 = document.getElementById('productivityChart').getContext('2d');
+            if (prodChart) prodChart.destroy();
+
+            prodChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+                    datasets: [{
+                        label: 'Tasks Completed',
+                        data: [2, 4, 3, 5, 2, 0, 1],
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: '#1e293b' }, ticks: { color: '#64748b' } },
+                        y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b' } }
+                    }
+                }
+            });
+
+            // Priority Doughnut Chart
+            const ctx2 = document.getElementById('priorityChart').getContext('2d');
+            if (prioChart) prioChart.destroy();
+
+            const cCount = appData.tasks.filter(t => t.priority === 'Critical').length;
+            const iCount = appData.tasks.filter(t => t.priority === 'Important').length;
+            const dCount = appData.tasks.filter(t => t.priority === 'Delegated').length;
+            const lCount = appData.tasks.filter(t => t.priority === 'Low').length;
+
+            prioChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Critical', 'Important', 'Delegated', 'Low'],
+                    datasets: [{
+                        data: [cCount, iCount, dCount, lCount],
+                        backgroundColor: ['#f43f5e', '#6366f1', '#f59e0b', '#64748b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 10 } } } }
+                }
+            });
+        }
+
+        // --- IMPORT / EXPORT DATA ---
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `ExecFlow_Backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importData(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    appData = JSON.parse(e.target.result);
+                    saveData();
+                    alert("Data berhasil dimuat!");
+                } catch (err) {
+                    alert("Format file JSON tidak valid.");
+                }
+            };
+            fileReader.readAsText(event.target.files[0]);
+        }
+
+        // --- GLOBAL RENDER ---
+        function renderAll() {
+            updateKPIs();
+            renderTasks();
+            renderHabits();
+            renderDeepWorkLogs();
+            loadWBR();
+            renderCalendar();
+        }
+
+        // INITIAL LOAD
+        document.addEventListener('DOMContentLoaded', () => {
+            switchTab('dashboard');
+            renderAll();
+        });
+    </script>
+</body>
+</html>
