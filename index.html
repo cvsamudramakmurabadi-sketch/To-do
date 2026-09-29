@@ -309,7 +309,7 @@
             </div>
         </section>
 
-        <!-- TO-DO LIST -->
+        <!-- TO-DO LIST (DIPERBARUI DENGAN TOMBOL EDIT & PERSISTENSI DEADLINE) -->
         <section id="tab-todo" class="tab-content hidden space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl">
@@ -324,7 +324,7 @@
                         </select>
                         <input type="text" id="task-delegate" placeholder="Penanggung Jawab / Tim" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
                         <input type="date" id="task-date" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
-                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-lg text-xs">+ Tambah Tugas Realtime</button>
+                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-lg text-xs shadow-lg shadow-indigo-600/20">+ Tambah Tugas Realtime</button>
                     </form>
                 </div>
                 <div class="lg:col-span-2 space-y-2" id="todo-list-view"></div>
@@ -396,7 +396,7 @@
         </div>
     </div>
 
-    <!-- MODAL EDIT KANBAN (FITUR BARU) -->
+    <!-- MODAL EDIT KANBAN -->
     <div id="kanban-edit-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -447,6 +447,51 @@
             <div class="flex justify-end space-x-2 pt-2">
                 <button onclick="closeEditKanbanModal()" class="px-4 py-2 bg-slate-800 text-slate-300 text-xs rounded-lg hover:bg-slate-700">Batal</button>
                 <button onclick="saveEditKanbanCard()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-lg shadow-lg shadow-purple-600/20">Update Kartu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT TO-DO TASK (FITUR BARU) -->
+    <div id="todo-edit-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fas fa-edit text-cyan-400"></i> Edit To-Do Task
+                </h3>
+                <button onclick="closeEditTaskModal()" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <input type="hidden" id="edit-task-id">
+
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Judul Tugas *</label>
+                <input type="text" id="edit-task-title" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Prioritas</label>
+                    <select id="edit-task-priority" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                        <option value="Critical">Critical (Must Do)</option>
+                        <option value="Important">Important (Routine)</option>
+                        <option value="Delegated">Delegated</option>
+                        <option value="Low">Low Priority</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Deadline</label>
+                    <input type="date" id="edit-task-date" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Penanggung Jawab (PIC)</label>
+                <input type="text" id="edit-task-delegate" placeholder="Nama PIC / Tim" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeEditTaskModal()" class="px-4 py-2 bg-slate-800 text-slate-300 text-xs rounded-lg hover:bg-slate-700">Batal</button>
+                <button onclick="saveEditTask()" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold rounded-lg shadow-lg shadow-cyan-600/20">Update Tugas</button>
             </div>
         </div>
     </div>
@@ -516,7 +561,7 @@
             if (tabId === 'kanban') renderKanban();
         }
 
-        // KANBAN LOGIC (DENGAN TOMBOL EDIT & DELETE)
+        // KANBAN LOGIC
         function renderKanban() {
             const cols = ['backlog', 'progress', 'qc', 'completed'];
             cols.forEach(col => {
@@ -598,7 +643,6 @@
             pushToFirebase();
         }
 
-        // FUNGSI MODAL EDIT KANBAN
         function openEditKanbanModal(id) {
             const card = appData.kanbanCards.find(c => c.id === id);
             if (!card) return;
@@ -687,14 +731,14 @@
             }).join('');
         }
 
-        // TASKS & HABITS LOGIC
+        // TO-DO LOGIC (DENGAN TOMBOL EDIT & KELOLA STATUS CENTANG/DELETE)
         function handleAddTask(e) {
             e.preventDefault();
             appData.tasks.push({
                 id: 't_' + Date.now(),
-                title: document.getElementById('task-title').value,
+                title: document.getElementById('task-title').value.trim(),
                 priority: document.getElementById('task-priority').value,
-                delegate: document.getElementById('task-delegate').value,
+                delegate: document.getElementById('task-delegate').value.trim(),
                 date: document.getElementById('task-date').value || new Date().toISOString().split('T')[0],
                 status: 'Pending'
             });
@@ -704,22 +748,80 @@
 
         function toggleTaskStatus(id) {
             const task = appData.tasks.find(t => t.id === id);
-            if (task) { task.status = task.status === 'Completed' ? 'Pending' : 'Completed'; pushToFirebase(); }
+            if (task) { 
+                task.status = task.status === 'Completed' ? 'Pending' : 'Completed'; 
+                pushToFirebase(); 
+            }
         }
 
         function deleteTask(id) { appData.tasks = appData.tasks.filter(t => t.id !== id); pushToFirebase(); }
 
+        function openEditTaskModal(id) {
+            const task = appData.tasks.find(t => t.id === id);
+            if (!task) return;
+
+            document.getElementById('edit-task-id').value = task.id;
+            document.getElementById('edit-task-title').value = task.title || '';
+            document.getElementById('edit-task-priority').value = task.priority || 'Important';
+            document.getElementById('edit-task-delegate').value = task.delegate || '';
+            document.getElementById('edit-task-date').value = task.date || '';
+
+            document.getElementById('todo-edit-modal').classList.remove('hidden');
+        }
+
+        function closeEditTaskModal() {
+            document.getElementById('todo-edit-modal').classList.add('hidden');
+        }
+
+        function saveEditTask() {
+            const id = document.getElementById('edit-task-id').value;
+            const task = appData.tasks.find(t => t.id === id);
+
+            if (task) {
+                const title = document.getElementById('edit-task-title').value.trim();
+                if (!title) return;
+
+                task.title = title;
+                task.priority = document.getElementById('edit-task-priority').value;
+                task.delegate = document.getElementById('edit-task-delegate').value.trim();
+                task.date = document.getElementById('edit-task-date').value;
+
+                closeEditTaskModal();
+                pushToFirebase();
+            }
+        }
+
+        // PERSISTENSI PENAMPILAN TASK (TETAP MUNCUL MESKI LEWAT DEADLINE)
         function renderTasks() {
-            document.getElementById('todo-list-view').innerHTML = appData.tasks.map(t => `
-                <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <input type="checkbox" ${t.status === 'Completed' ? 'checked' : ''} onchange="toggleTaskStatus('${t.id}')">
+            const pendingTasks = appData.tasks.filter(t => t.status !== 'Completed');
+
+            if (pendingTasks.length === 0) {
+                document.getElementById('todo-list-view').innerHTML = `
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl text-center text-slate-500 italic text-xs">
+                        Tidak ada tugas aktif. Semua tugas selesai atau belum dibuat.
+                    </div>`;
+                return;
+            }
+
+            document.getElementById('todo-list-view').innerHTML = pendingTasks.map(t => `
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center justify-between shadow-md transition-all hover:border-slate-700">
+                    <div class="flex items-center space-x-3.5">
+                        <input type="checkbox" ${t.status === 'Completed' ? 'checked' : ''} onchange="toggleTaskStatus('${t.id}')" class="w-4 h-4 rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-0 cursor-pointer">
                         <div>
-                            <h4 class="text-xs font-bold ${t.status === 'Completed' ? 'line-through text-slate-500' : 'text-white'}">${t.title}</h4>
-                            <p class="text-[10px] text-slate-400">${t.priority} | PIC: ${t.delegate || '-'} | Deadline: ${t.date}</p>
+                            <h4 class="text-xs font-bold text-white">${t.title}</h4>
+                            <p class="text-[10px] text-slate-400 mt-0.5">
+                                <span class="font-semibold text-indigo-400">${t.priority}</span> | PIC: ${t.delegate || '-'} | Deadline: ${t.date || '-'}
+                            </p>
                         </div>
                     </div>
-                    <button onclick="deleteTask('${t.id}')" class="text-slate-500 hover:text-rose-400 text-xs"><i class="fas fa-trash"></i></button>
+                    <div class="flex items-center space-x-2.5">
+                        <button onclick="openEditTaskModal('${t.id}')" title="Edit Tugas" class="text-slate-400 hover:text-cyan-400 text-xs transition-colors p-1">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteTask('${t.id}')" title="Hapus Tugas" class="text-slate-400 hover:text-rose-400 text-xs transition-colors p-1">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
                 </div>
             `).join('');
         }
